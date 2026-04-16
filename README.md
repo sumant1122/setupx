@@ -14,6 +14,7 @@ A simple, fast, and dependency-light cross-platform package manager for develope
 - **OS Detection**: Automatically detects your operating system and selects the right tool.
 - **Remote Gist Support**: Fetch and apply configurations directly from a URL (e.g., GitHub Gists).
 - **Native Search**: Search for package IDs directly through `setupx` using your OS's package manager.
+- **Version Pinning**: Specify exact package versions to ensure reproducible environments.
 - **Dry-Run Mode**: Preview commands without executing them using the `--dry-run` flag.
 - **Explain Mode**: Understand exactly how a package name is mapped and what command will run.
 - **Simple Configuration**: Uses a clean `setupx.yaml` for package lists and custom mappings.
@@ -46,6 +47,7 @@ mappings:
     windows: Neovim.Neovim
     linux: neovim
     mac: neovim
+    version: "0.9.5"  # Optional: Pin to a specific version
   git:
     windows: Git.Git
 ```

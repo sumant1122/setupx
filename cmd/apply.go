@@ -44,7 +44,14 @@ var applyCmd = &cobra.Command{
 		run := &runner.Runner{DryRun: dryRun}
 		for _, p := range cfg.Packages {
 			targetPkg := cfg.GetPackageName(p, string(osName))
-			installCmd := mgr.InstallCommand([]string{targetPkg})
+			
+			// Build version map for this specific package
+			versions := make(map[string]string)
+			if detail, ok := cfg.Mappings[p]; ok && detail.Version != "" {
+				versions[targetPkg] = detail.Version
+			}
+
+			installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
 			
 			if err := run.Run(installCmd); err != nil {
 				fmt.Printf("[Warning] Failed to install %s: %v\n", p, err)

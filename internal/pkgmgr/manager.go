@@ -7,15 +7,23 @@ import (
 )
 
 type PackageManager interface {
-	InstallCommand(packages []string) []string
+	InstallCommand(packages []string, versions map[string]string) []string
 	SearchCommand(pkg string) []string
 	ExactSearchCommand(pkg string) []string
 }
 
 type AptManager struct{}
 
-func (a AptManager) InstallCommand(packages []string) []string {
-	return append([]string{"sudo", "apt", "install", "-y"}, packages...)
+func (a AptManager) InstallCommand(packages []string, versions map[string]string) []string {
+	var targets []string
+	for _, p := range packages {
+		if v, ok := versions[p]; ok && v != "" {
+			targets = append(targets, fmt.Sprintf("%s=%s", p, v))
+		} else {
+			targets = append(targets, p)
+		}
+	}
+	return append([]string{"sudo", "apt", "install", "-y"}, targets...)
 }
 
 func (a AptManager) SearchCommand(pkg string) []string {
@@ -29,8 +37,16 @@ func (a AptManager) ExactSearchCommand(pkg string) []string {
 
 type DnfManager struct{}
 
-func (d DnfManager) InstallCommand(packages []string) []string {
-	return append([]string{"sudo", "dnf", "install", "-y"}, packages...)
+func (d DnfManager) InstallCommand(packages []string, versions map[string]string) []string {
+	var targets []string
+	for _, p := range packages {
+		if v, ok := versions[p]; ok && v != "" {
+			targets = append(targets, fmt.Sprintf("%s-%s", p, v))
+		} else {
+			targets = append(targets, p)
+		}
+	}
+	return append([]string{"sudo", "dnf", "install", "-y"}, targets...)
 }
 
 func (d DnfManager) SearchCommand(pkg string) []string {
@@ -43,8 +59,16 @@ func (d DnfManager) ExactSearchCommand(pkg string) []string {
 
 type BrewManager struct{}
 
-func (b BrewManager) InstallCommand(packages []string) []string {
-	return append([]string{"brew", "install"}, packages...)
+func (b BrewManager) InstallCommand(packages []string, versions map[string]string) []string {
+	var targets []string
+	for _, p := range packages {
+		if v, ok := versions[p]; ok && v != "" {
+			targets = append(targets, fmt.Sprintf("%s@%s", p, v))
+		} else {
+			targets = append(targets, p)
+		}
+	}
+	return append([]string{"brew", "install"}, targets...)
 }
 
 func (b BrewManager) SearchCommand(pkg string) []string {
@@ -57,8 +81,16 @@ func (b BrewManager) ExactSearchCommand(pkg string) []string {
 
 type WingetManager struct{}
 
-func (w WingetManager) InstallCommand(packages []string) []string {
-	return append([]string{"winget", "install"}, packages...)
+func (w WingetManager) InstallCommand(packages []string, versions map[string]string) []string {
+	var targets []string
+	for _, p := range packages {
+		if v, ok := versions[p]; ok && v != "" {
+			targets = append(targets, p, "--version", v)
+		} else {
+			targets = append(targets, p)
+		}
+	}
+	return append([]string{"winget", "install"}, targets...)
 }
 
 func (w WingetManager) SearchCommand(pkg string) []string {
@@ -71,8 +103,16 @@ func (w WingetManager) ExactSearchCommand(pkg string) []string {
 
 type ScoopManager struct{}
 
-func (s ScoopManager) InstallCommand(packages []string) []string {
-	return append([]string{"scoop", "install"}, packages...)
+func (s ScoopManager) InstallCommand(packages []string, versions map[string]string) []string {
+	var targets []string
+	for _, p := range packages {
+		if v, ok := versions[p]; ok && v != "" {
+			targets = append(targets, fmt.Sprintf("%s@%s", p, v))
+		} else {
+			targets = append(targets, p)
+		}
+	}
+	return append([]string{"scoop", "install"}, targets...)
 }
 
 func (s ScoopManager) SearchCommand(pkg string) []string {
@@ -85,8 +125,15 @@ func (s ScoopManager) ExactSearchCommand(pkg string) []string {
 
 type PacmanManager struct{}
 
-func (p PacmanManager) InstallCommand(packages []string) []string {
-	return append([]string{"sudo", "pacman", "-S", "--noconfirm"}, packages...)
+func (p PacmanManager) InstallCommand(packages []string, versions map[string]string) []string {
+	var targets []string
+	for _, p := range packages {
+		// Pacman doesn't support easy version pinning in the install command directly 
+		// without downgrading or specific archive handling. 
+		// For MVP, we'll just log/ignore or use the standard.
+		targets = append(targets, p)
+	}
+	return append([]string{"sudo", "pacman", "-S", "--noconfirm"}, targets...)
 }
 
 func (p PacmanManager) SearchCommand(pkg string) []string {

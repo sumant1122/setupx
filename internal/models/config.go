@@ -10,6 +10,7 @@ type PackageDetail struct {
 	Linux   string `yaml:"linux,omitempty"`
 	Mac     string `yaml:"mac,omitempty"`
 	Windows string `yaml:"windows,omitempty"`
+	Version string `yaml:"version,omitempty"`
 }
 
 func (c *Config) GetPackageName(pkg string, osName string) string {

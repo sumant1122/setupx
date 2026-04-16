@@ -41,14 +41,18 @@ var installCmd = &cobra.Command{
 		}
 
 		var targetPkg string
+		versions := make(map[string]string)
 		if cfg != nil {
 			targetPkg = cfg.GetPackageName(pkg, string(osName))
+			if detail, ok := cfg.Mappings[pkg]; ok && detail.Version != "" {
+				versions[targetPkg] = detail.Version
+			}
 		} else {
 			targetPkg = pkg
 		}
 
 		run := &runner.Runner{DryRun: dryRun}
-		installCmd := mgr.InstallCommand([]string{targetPkg})
+		installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
 		if err := run.Run(installCmd); err != nil {
 			log.Fatalf("Error executing install: %v", err)
 		}

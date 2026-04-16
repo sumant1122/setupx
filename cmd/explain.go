@@ -35,13 +35,17 @@ var explainCmd = &cobra.Command{
 		}
 
 		var targetPkg string
+		versions := make(map[string]string)
 		if cfg != nil {
 			targetPkg = cfg.GetPackageName(pkg, string(osName))
+			if detail, ok := cfg.Mappings[pkg]; ok && detail.Version != "" {
+				versions[targetPkg] = detail.Version
+			}
 		} else {
 			targetPkg = pkg
 		}
 
-		installCmd := mgr.InstallCommand([]string{targetPkg})
+		installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
 		
 		fmt.Printf("Package: %s\n", pkg)
 		fmt.Printf("Detected OS: %s\n", osName)
