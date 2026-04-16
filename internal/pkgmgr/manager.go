@@ -9,6 +9,7 @@ import (
 type PackageManager interface {
 	InstallCommand(packages []string) []string
 	SearchCommand(pkg string) []string
+	ExactSearchCommand(pkg string) []string
 }
 
 type AptManager struct{}
@@ -21,6 +22,11 @@ func (a AptManager) SearchCommand(pkg string) []string {
 	return []string{"apt", "search", "--names-only", pkg}
 }
 
+func (a AptManager) ExactSearchCommand(pkg string) []string {
+	// Using regex for exact match in apt
+	return []string{"apt", "search", "--names-only", fmt.Sprintf("^%s$", pkg)}
+}
+
 type DnfManager struct{}
 
 func (d DnfManager) InstallCommand(packages []string) []string {
@@ -29,6 +35,10 @@ func (d DnfManager) InstallCommand(packages []string) []string {
 
 func (d DnfManager) SearchCommand(pkg string) []string {
 	return []string{"dnf", "search", "--names-only", pkg}
+}
+
+func (d DnfManager) ExactSearchCommand(pkg string) []string {
+	return []string{"dnf", "search", "--names-only", pkg} // Dnf handles it fairly well or we'd use exact flags if available
 }
 
 type BrewManager struct{}
@@ -41,6 +51,10 @@ func (b BrewManager) SearchCommand(pkg string) []string {
 	return []string{"brew", "search", pkg}
 }
 
+func (b BrewManager) ExactSearchCommand(pkg string) []string {
+	return []string{"brew", "search", fmt.Sprintf("/^%s$/", pkg)}
+}
+
 type WingetManager struct{}
 
 func (w WingetManager) InstallCommand(packages []string) []string {
@@ -49,6 +63,10 @@ func (w WingetManager) InstallCommand(packages []string) []string {
 
 func (w WingetManager) SearchCommand(pkg string) []string {
 	return []string{"winget", "search", "--name", pkg}
+}
+
+func (w WingetManager) ExactSearchCommand(pkg string) []string {
+	return []string{"winget", "search", "--exact", pkg}
 }
 
 type ScoopManager struct{}
@@ -61,6 +79,10 @@ func (s ScoopManager) SearchCommand(pkg string) []string {
 	return []string{"scoop", "search", pkg}
 }
 
+func (s ScoopManager) ExactSearchCommand(pkg string) []string {
+	return []string{"scoop", "search", pkg}
+}
+
 type PacmanManager struct{}
 
 func (p PacmanManager) InstallCommand(packages []string) []string {
@@ -69,6 +91,10 @@ func (p PacmanManager) InstallCommand(packages []string) []string {
 
 func (p PacmanManager) SearchCommand(pkg string) []string {
 	return []string{"pacman", "-Ssq", pkg}
+}
+
+func (p PacmanManager) ExactSearchCommand(pkg string) []string {
+	return []string{"pacman", "-Ssq", fmt.Sprintf("^%s$", pkg)}
 }
 
 func GetManager(os OSName, configOverride string) (PackageManager, error) {

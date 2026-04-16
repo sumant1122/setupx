@@ -30,6 +30,16 @@ func (r *Runner) Run(cmd []string) error {
 	return c.Run()
 }
 
+func (r *Runner) RunOutput(cmd []string) (string, error) {
+	if r.DryRun {
+		return "", nil
+	}
+
+	c := exec.Command(cmd[0], cmd[1:]...)
+	out, err := c.CombinedOutput()
+	return string(out), err
+}
+
 func (r *Runner) runLimited(c *exec.Cmd) error {
 	stdout, err := c.StdoutPipe()
 	if err != nil {
