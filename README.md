@@ -1,4 +1,4 @@
-# setupx 📦
+Set up your development environment on macOS, Linux, and Windows using a single YAML file.
 
 A simple, fast, and dependency-light cross-platform package manager for developers. Define your packages once in a YAML file and install them across macOS, Linux, and Windows using native package managers.
 
