@@ -1,0 +1,13 @@
+packages:
+  - neovim
+  - git
+
+mappings:
+  neovim:
+    windows: Neovim.Neovim
+    linux: neovim
+    mac: neovim
+  git:
+    windows: Git.Git
+    linux: git
+    mac: git
