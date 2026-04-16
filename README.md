@@ -28,6 +28,8 @@ sudo mv setupx /usr/local/bin/ # Optional: move to path
 Create a `setupx.yaml` file in your project root to define your environment:
 
 ```yaml
+package_manager: brew  # Optional: Force a specific package manager
+
 packages:
   - neovim
   - git
