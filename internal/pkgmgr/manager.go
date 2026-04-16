@@ -94,11 +94,11 @@ func (w WingetManager) InstallCommand(packages []string, versions map[string]str
 }
 
 func (w WingetManager) SearchCommand(pkg string) []string {
-	return []string{"winget", "search", "--name", pkg}
+	return []string{"winget", "search", pkg}
 }
 
 func (w WingetManager) ExactSearchCommand(pkg string) []string {
-	return []string{"winget", "search", "--exact", pkg}
+	return []string{"winget", "search", "--id", pkg, "--exact"}
 }
 
 type ScoopManager struct{}

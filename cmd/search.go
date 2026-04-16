@@ -91,29 +91,20 @@ func parseResults(out string, osName string) []pkgResult {
 			results = append(results, pkgResult{Name: line, Description: "N/A"})
 		case "windows": // Winget
 			// Winget output format: Name | Id | Version | Source
-			// We want the 'Id' (column 2) because that's what is used for install/mappings
 			if strings.HasPrefix(line, "Name") || strings.HasPrefix(line, "---") || strings.HasPrefix(line, "No package found") {
 				continue
 			}
 			
-			// Winget uses fixed-width columns usually, but fields can help if there are no spaces in names.
-			// However, IDs never have spaces. 
-			// Heuristic: The ID is usually the second 'blob' of text that looks like a package identifier (e.g. Neovim.Neovim)
 			fields := strings.Fields(line)
 			if len(fields) >= 2 {
-				// ID is almost always the second field in winget search
-				id := fields[len(fields)-3] // Backwards heuristic often works better for winget if names have spaces
-				if len(fields) == 2 {
-					id = fields[1]
-				} else if len(fields) >= 4 {
-					// Name ID Version Source -> ID is index 1 or 2 depending on spaces
-					// Let's look for the one with a dot or capitalized pattern
-					id = fields[1] 
-					for _, f := range fields {
-						if strings.Contains(f, ".") {
-							id = f
-							break
-						}
+				// ID is usually the second column. 
+				// In winget, IDs almost always contain dots and no spaces.
+				id := fields[1]
+				for _, f := range fields {
+					// Heuristic: IDs in winget usually have multiple dots (e.g. Microsoft.VisualStudioCode)
+					if strings.Count(f, ".") >= 1 && !strings.Contains(f, ":") {
+						id = f
+						break
 					}
 				}
 				results = append(results, pkgResult{Name: id, Description: "Available on Windows"})
@@ -130,19 +121,19 @@ func parseResults(out string, osName string) []pkgResult {
 }
 
 func renderTable(results []pkgResult) {
-	const nameWidth = 20
-	fmt.Printf("%-20s %s\n", "NAME", "DESCRIPTION")
-	fmt.Println(strings.Repeat("-", 60))
+	const nameWidth = 35
+	fmt.Printf("%-35s %s\n", "NAME", "DESCRIPTION")
+	fmt.Println(strings.Repeat("-", 70))
 	for _, r := range results {
 		name := r.Name
 		if len(name) > nameWidth {
 			name = name[:nameWidth-3] + "..."
 		}
 		desc := r.Description
-		if len(desc) > 37 {
-			desc = desc[:34] + "..."
+		if len(desc) > 32 {
+			desc = desc[:29] + "..."
 		}
-		fmt.Printf("%-20s %s\n", name, desc)
+		fmt.Printf("%-35s %s\n", name, desc)
 	}
 }
 
