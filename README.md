@@ -6,14 +6,18 @@
 
 Set up your development environment on macOS, Linux, and Windows using a single YAML file.
 
-A simple, fast, and dependency-light cross-platform package manager for developers. Define your packages once in a YAML file and install them across macOS, Linux, and Windows using native package managers.
+## Why setupx?
+
+Developers often switch between macOS (work), Linux (personal/server), and Windows. Maintaining three separate setup scripts or remembering different package manager commands is a major context switch. 
+
+**setupx** allows you to define your tools once. It handles the OS detection, name mapping, and version pinning automatically, so you can bootstrap any machine in seconds.
 
 ## Features
 
-- **Cross-Platform**: Maps generic package names to native package managers (`brew`, `apt`, `dnf`, `winget`, `scoop`).
+- **Cross-Platform**: Maps generic package names to native package managers (`brew`, `apt`, `dnf`, `pacman`, `winget`, `scoop`).
 - **OS Detection**: Automatically detects your operating system and selects the right tool.
 - **Remote Gist Support**: Fetch and apply configurations directly from a URL (e.g., GitHub Gists).
-- **Native Search**: Search for package IDs directly through `setupx` using your OS's package manager.
+- **Native Search**: Search for package IDs directly through `setupx` with clean, table-formatted results.
 - **Version Pinning**: Specify exact package versions to ensure reproducible environments.
 - **Dry-Run Mode**: Preview commands without executing them using the `--dry-run` flag.
 - **Explain Mode**: Understand exactly how a package name is mapped and what command will run.
@@ -24,7 +28,7 @@ A simple, fast, and dependency-light cross-platform package manager for develope
 Ensure you have [Go](https://go.dev/doc/install) installed, then:
 
 ```bash
-git clone https://github.com/youruser/setupx.git
+git clone https://github.com/sumant1122/setupx.git
 cd setupx
 go build -o setupx main.go
 sudo mv setupx /usr/local/bin/ # Optional: move to path
@@ -66,8 +70,14 @@ Bootstrap a new machine using a configuration stored online (e.g., GitHub Gist r
 setupx apply --url https://gist.githubusercontent.com/user/id/raw/setupx.yaml
 ```
 
+### 🔍 Search for a Package
+Find the correct package ID from your native package manager (results are formatted in a clean table):
+```bash
+setupx search neovim
+```
+
 ### 🔍 Explain a Package
-See how `setupx` maps a package name to your current OS:
+See how `setupx` maps a package name and what command it would run:
 ```bash
 setupx explain neovim
 ```
@@ -76,12 +86,6 @@ setupx explain neovim
 Install a package directly (it will use mappings from `setupx.yaml` if available):
 ```bash
 setupx install ripgrep
-```
-
-### 🔍 Search for a Package
-Find the correct package ID from your native package manager:
-```bash
-setupx search neovim
 ```
 
 ### 🛡️ Dry Run
@@ -99,11 +103,11 @@ setupx --version
 
 ## Supported Package Managers
 
-| OS | Default Manager |
-|---|---|
-| **macOS** | Homebrew (`brew`) |
-| **Linux** | `apt` (Default), `dnf` |
-| **Windows** | `winget` (Default), `scoop` |
+| OS | Default Manager | Supported Alternatives |
+|---|---|---|
+| **macOS** | Homebrew (`brew`) | |
+| **Linux** | `apt` | `dnf`, `pacman`, `brew` |
+| **Windows** | `winget` | `scoop` |
 
 ## Development
 
