@@ -90,13 +90,33 @@ func parseResults(out string, osName string) []pkgResult {
 			// Brew search just returns names
 			results = append(results, pkgResult{Name: line, Description: "N/A"})
 		case "windows": // Winget
-			// Winget is a table already, but we'll try to extract
-			if strings.HasPrefix(line, "Name") || strings.HasPrefix(line, "---") {
+			// Winget output format: Name | Id | Version | Source
+			// We want the 'Id' (column 2) because that's what is used for install/mappings
+			if strings.HasPrefix(line, "Name") || strings.HasPrefix(line, "---") || strings.HasPrefix(line, "No package found") {
 				continue
 			}
+			
+			// Winget uses fixed-width columns usually, but fields can help if there are no spaces in names.
+			// However, IDs never have spaces. 
+			// Heuristic: The ID is usually the second 'blob' of text that looks like a package identifier (e.g. Neovim.Neovim)
 			fields := strings.Fields(line)
 			if len(fields) >= 2 {
-				results = append(results, pkgResult{Name: fields[1], Description: "Available on Windows"})
+				// ID is almost always the second field in winget search
+				id := fields[len(fields)-3] // Backwards heuristic often works better for winget if names have spaces
+				if len(fields) == 2 {
+					id = fields[1]
+				} else if len(fields) >= 4 {
+					// Name ID Version Source -> ID is index 1 or 2 depending on spaces
+					// Let's look for the one with a dot or capitalized pattern
+					id = fields[1] 
+					for _, f := range fields {
+						if strings.Contains(f, ".") {
+							id = f
+							break
+						}
+					}
+				}
+				results = append(results, pkgResult{Name: id, Description: "Available on Windows"})
 			}
 		default:
 			results = append(results, pkgResult{Name: line, Description: ""})
