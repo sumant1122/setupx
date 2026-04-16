@@ -26,6 +26,19 @@ Developers often switch between macOS (work), Linux (personal/server), and Windo
 
 ## Installation
 
+### Option 1: Binary Download (Recommended)
+Download the latest pre-built binary for your platform from the [Releases](https://github.com/sumant1122/setupx/releases) page.
+
+1.  **Linux/Mac**: 
+    ```bash
+    chmod +x setupx-<os>-amd64
+    sudo mv setupx-<os>-amd64 /usr/local/bin/setupx
+    ```
+2.  **Windows**: 
+    - Rename `setupx-windows-amd64.exe` to `setupx.exe`.
+    - Add the folder containing `setupx.exe` to your system **PATH**.
+
+### Option 2: Build from Source
 Ensure you have [Go](https://go.dev/doc/install) installed, then:
 
 ```bash
