@@ -8,6 +8,7 @@ import (
 
 type PackageManager interface {
 	InstallCommand(packages []string) []string
+	SearchCommand(pkg string) []string
 }
 
 type AptManager struct{}
@@ -16,10 +17,18 @@ func (a AptManager) InstallCommand(packages []string) []string {
 	return append([]string{"sudo", "apt", "install", "-y"}, packages...)
 }
 
+func (a AptManager) SearchCommand(pkg string) []string {
+	return []string{"apt", "search", pkg}
+}
+
 type DnfManager struct{}
 
 func (d DnfManager) InstallCommand(packages []string) []string {
 	return append([]string{"sudo", "dnf", "install", "-y"}, packages...)
+}
+
+func (d DnfManager) SearchCommand(pkg string) []string {
+	return []string{"dnf", "search", pkg}
 }
 
 type BrewManager struct{}
@@ -28,10 +37,18 @@ func (b BrewManager) InstallCommand(packages []string) []string {
 	return append([]string{"brew", "install"}, packages...)
 }
 
+func (b BrewManager) SearchCommand(pkg string) []string {
+	return []string{"brew", "search", pkg}
+}
+
 type WingetManager struct{}
 
 func (w WingetManager) InstallCommand(packages []string) []string {
 	return append([]string{"winget", "install"}, packages...)
+}
+
+func (w WingetManager) SearchCommand(pkg string) []string {
+	return []string{"winget", "search", pkg}
 }
 
 type ScoopManager struct{}
@@ -40,10 +57,18 @@ func (s ScoopManager) InstallCommand(packages []string) []string {
 	return append([]string{"scoop", "install"}, packages...)
 }
 
+func (s ScoopManager) SearchCommand(pkg string) []string {
+	return []string{"scoop", "search", pkg}
+}
+
 type PacmanManager struct{}
 
 func (p PacmanManager) InstallCommand(packages []string) []string {
 	return append([]string{"sudo", "pacman", "-S", "--noconfirm"}, packages...)
+}
+
+func (p PacmanManager) SearchCommand(pkg string) []string {
+	return []string{"pacman", "-Ss", pkg}
 }
 
 func GetManager(os OSName, configOverride string) (PackageManager, error) {

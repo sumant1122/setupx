@@ -67,6 +67,12 @@ Install a package directly (it will use mappings from `setupx.yaml` if available
 setupx install ripgrep
 ```
 
+### 🔍 Search for a Package
+Find the correct package ID from your native package manager:
+```bash
+setupx search neovim
+```
+
 ### 🛡️ Dry Run
 Preview any command without making changes:
 ```bash
