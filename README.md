@@ -16,6 +16,7 @@ Developers often switch between macOS (work), Linux (personal/server), and Windo
 
 - **Cross-Platform**: Maps generic package names to native package managers (`brew`, `apt`, `dnf`, `pacman`, `winget`, `scoop`).
 - **OS Detection**: Automatically detects your operating system and selects the right tool.
+- **Idempotency**: Automatically skips packages that are already installed, making updates nearly instant.
 - **Remote Gist Support**: Fetch and apply configurations directly from a URL (e.g., GitHub Gists).
 - **Native Search**: Search for package IDs directly through `setupx` with clean, table-formatted results.
 - **Version Pinning**: Specify exact package versions to ensure reproducible environments.
