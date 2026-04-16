@@ -10,6 +10,7 @@ type PackageManager interface {
 	InstallCommand(packages []string, versions map[string]string) []string
 	SearchCommand(pkg string) []string
 	ExactSearchCommand(pkg string) []string
+	IsInstalledCommand(pkg string) []string
 }
 
 type AptManager struct{}
@@ -31,8 +32,11 @@ func (a AptManager) SearchCommand(pkg string) []string {
 }
 
 func (a AptManager) ExactSearchCommand(pkg string) []string {
-	// Using regex for exact match in apt
 	return []string{"apt", "search", "--names-only", fmt.Sprintf("^%s$", pkg)}
+}
+
+func (a AptManager) IsInstalledCommand(pkg string) []string {
+	return []string{"dpkg", "-s", pkg}
 }
 
 type DnfManager struct{}
@@ -54,7 +58,11 @@ func (d DnfManager) SearchCommand(pkg string) []string {
 }
 
 func (d DnfManager) ExactSearchCommand(pkg string) []string {
-	return []string{"dnf", "search", "--names-only", pkg} // Dnf handles it fairly well or we'd use exact flags if available
+	return []string{"dnf", "search", "--names-only", pkg}
+}
+
+func (d DnfManager) IsInstalledCommand(pkg string) []string {
+	return []string{"dnf", "list", "installed", pkg}
 }
 
 type BrewManager struct{}
@@ -79,6 +87,10 @@ func (b BrewManager) ExactSearchCommand(pkg string) []string {
 	return []string{"brew", "search", fmt.Sprintf("/^%s$/", pkg)}
 }
 
+func (b BrewManager) IsInstalledCommand(pkg string) []string {
+	return []string{"brew", "list", pkg}
+}
+
 type WingetManager struct{}
 
 func (w WingetManager) InstallCommand(packages []string, versions map[string]string) []string {
@@ -99,6 +111,10 @@ func (w WingetManager) SearchCommand(pkg string) []string {
 
 func (w WingetManager) ExactSearchCommand(pkg string) []string {
 	return []string{"winget", "search", "--id", pkg, "--exact"}
+}
+
+func (w WingetManager) IsInstalledCommand(pkg string) []string {
+	return []string{"winget", "list", "--id", pkg, "--exact"}
 }
 
 type ScoopManager struct{}
@@ -123,14 +139,15 @@ func (s ScoopManager) ExactSearchCommand(pkg string) []string {
 	return []string{"scoop", "search", pkg}
 }
 
+func (s ScoopManager) IsInstalledCommand(pkg string) []string {
+	return []string{"scoop", "list", pkg}
+}
+
 type PacmanManager struct{}
 
 func (p PacmanManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
 	for _, p := range packages {
-		// Pacman doesn't support easy version pinning in the install command directly 
-		// without downgrading or specific archive handling. 
-		// For MVP, we'll just log/ignore or use the standard.
 		targets = append(targets, p)
 	}
 	return append([]string{"sudo", "pacman", "-S", "--noconfirm"}, targets...)
@@ -142,6 +159,10 @@ func (p PacmanManager) SearchCommand(pkg string) []string {
 
 func (p PacmanManager) ExactSearchCommand(pkg string) []string {
 	return []string{"pacman", "-Ssq", fmt.Sprintf("^%s$", pkg)}
+}
+
+func (p PacmanManager) IsInstalledCommand(pkg string) []string {
+	return []string{"pacman", "-Qi", pkg}
 }
 
 func GetManager(os OSName, configOverride string) (PackageManager, error) {

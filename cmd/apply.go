@@ -45,7 +45,13 @@ var applyCmd = &cobra.Command{
 		for _, p := range cfg.Packages {
 			targetPkg := cfg.GetPackageName(p, string(osName))
 			
-			// Build version map for this specific package
+			// 1. Check if already installed (Idempotency)
+			if !dryRun && run.Check(mgr.IsInstalledCommand(targetPkg)) {
+				fmt.Printf("[Skipped] %s is already installed\n", p)
+				continue
+			}
+
+			// 2. Build version map for this specific package
 			versions := make(map[string]string)
 			if detail, ok := cfg.Mappings[p]; ok && detail.Version != "" {
 				versions[targetPkg] = detail.Version

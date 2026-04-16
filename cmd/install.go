@@ -52,6 +52,13 @@ var installCmd = &cobra.Command{
 		}
 
 		run := &runner.Runner{DryRun: dryRun}
+
+		// Check if already installed (Idempotency)
+		if !dryRun && run.Check(mgr.IsInstalledCommand(targetPkg)) {
+			fmt.Printf("[Skipped] %s is already installed\n", pkg)
+			return
+		}
+
 		installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
 		if err := run.Run(installCmd); err != nil {
 			log.Fatalf("Error executing install: %v", err)
