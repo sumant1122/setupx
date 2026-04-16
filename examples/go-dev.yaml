@@ -1,0 +1,13 @@
+# Example: Go Development Environment
+packages:
+  - golang
+  - git
+  - neovim
+
+mappings:
+  golang:
+    windows: GoLang.Go
+    linux: golang-go
+    mac: go
+  neovim:
+    windows: Neovim.Neovim

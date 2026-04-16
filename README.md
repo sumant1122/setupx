@@ -1,5 +1,9 @@
 # setupx 📦
 
+[![Go Version](https://img.shields.io/github/go-mod/go-version/sumant1122/setupx)](https://go.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/sumant1122/setupx/actions/workflows/go.yml/badge.svg)](https://github.com/sumant1122/setupx/actions)
+
 Set up your development environment on macOS, Linux, and Windows using a single YAML file.
 
 A simple, fast, and dependency-light cross-platform package manager for developers. Define your packages once in a YAML file and install them across macOS, Linux, and Windows using native package managers.

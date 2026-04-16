@@ -1,0 +1,19 @@
+# Example: Web Development Stack
+packages:
+  - nodejs
+  - vscode
+  - docker
+
+mappings:
+  nodejs:
+    windows: OpenJS.NodeJS
+    linux: nodejs
+    mac: node
+  vscode:
+    windows: Microsoft.VisualStudioCode
+    linux: code
+    mac: visual-studio-code
+  docker:
+    windows: Docker.DockerDesktop
+    linux: docker-ce
+    mac: docker
