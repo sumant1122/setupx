@@ -109,5 +109,9 @@ Build:
 go build -o setupx main.go
 ```
 
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and our [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## License
 MIT
