@@ -5,6 +5,7 @@ import (
 	"setupx/internal/models"
 	"setupx/internal/pkgmgr"
 	"setupx/internal/runner"
+	"fmt"
 	"log"
 	"os"
 
@@ -50,6 +51,12 @@ var installCmd = &cobra.Command{
 		installCmd := mgr.InstallCommand([]string{targetPkg})
 		if err := run.Run(installCmd); err != nil {
 			log.Fatalf("Error executing install: %v", err)
+		}
+
+		if dryRun {
+			fmt.Printf("[Dry-run] Would install %s\n", targetPkg)
+		} else {
+			fmt.Printf("[Success] %s installed\n", targetPkg)
 		}
 	},
 }
