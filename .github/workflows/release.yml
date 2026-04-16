@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Build Binaries
+        run: |
+          mkdir -p dist
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -o dist/setupx-linux-amd64 main.go
+          # macOS (Intel)
+          GOOS=darwin GOARCH=amd64 go build -o dist/setupx-darwin-amd64 main.go
+          # macOS (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -o dist/setupx-darwin-arm64 main.go
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -o dist/setupx-windows-amd64.exe main.go
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/setupx-linux-amd64
+            dist/setupx-darwin-amd64
+            dist/setupx-darwin-arm64
+            dist/setupx-windows-amd64.exe
+          name: Release ${{ github.ref_name }}
+          body: |
+            First official release of **setupx**, the cross-platform developer environment orchestrator.
+
+            ### Key Features:
+            - **🌍 Cross-Platform:** Support for macOS, Linux, and Windows.
+            - **🛡️ Idempotency:** Automatically skips already installed packages.
+            - **🔍 Native Search:** Search for package IDs directly through `setupx`.
+            - **📍 Version Pinning:** Ensure exact package versions.
+            - **☁️ Remote Gists:** Bootstrap using a single URL.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
