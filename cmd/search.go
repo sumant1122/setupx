@@ -4,6 +4,7 @@ import (
 	"setupx/internal/config"
 	"setupx/internal/pkgmgr"
 	"setupx/internal/runner"
+	"fmt"
 	"log"
 	"os"
 
@@ -33,11 +34,11 @@ var searchCmd = &cobra.Command{
 		}
 
 		searchCmd := mgr.SearchCommand(pkg)
-		run := &runner.Runner{DryRun: dryRun}
+		run := &runner.Runner{DryRun: dryRun, MaxLines: 20}
 		
 		if dryRun {
 			// In search, dry run should probably still show the command
-			log.Printf("[Dry-run] Would run search: %v", searchCmd)
+			fmt.Printf("[Dry-run] Would run search: %v\n", searchCmd)
 			return
 		}
 

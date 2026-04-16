@@ -18,7 +18,7 @@ func (a AptManager) InstallCommand(packages []string) []string {
 }
 
 func (a AptManager) SearchCommand(pkg string) []string {
-	return []string{"apt", "search", pkg}
+	return []string{"apt", "search", "--names-only", pkg}
 }
 
 type DnfManager struct{}
@@ -28,7 +28,7 @@ func (d DnfManager) InstallCommand(packages []string) []string {
 }
 
 func (d DnfManager) SearchCommand(pkg string) []string {
-	return []string{"dnf", "search", pkg}
+	return []string{"dnf", "search", "--names-only", pkg}
 }
 
 type BrewManager struct{}
@@ -48,7 +48,7 @@ func (w WingetManager) InstallCommand(packages []string) []string {
 }
 
 func (w WingetManager) SearchCommand(pkg string) []string {
-	return []string{"winget", "search", pkg}
+	return []string{"winget", "search", "--name", pkg}
 }
 
 type ScoopManager struct{}
@@ -68,7 +68,7 @@ func (p PacmanManager) InstallCommand(packages []string) []string {
 }
 
 func (p PacmanManager) SearchCommand(pkg string) []string {
-	return []string{"pacman", "-Ss", pkg}
+	return []string{"pacman", "-Ssq", pkg}
 }
 
 func GetManager(os OSName, configOverride string) (PackageManager, error) {
