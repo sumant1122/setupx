@@ -12,6 +12,9 @@ Developers often switch between macOS (work), Linux (personal/server), and Windo
 
 **setupx** allows you to define your tools once. It handles the OS detection, name mapping, and version pinning automatically, so you can bootstrap any machine in seconds.
 
+## setupx Demo
+<img width="800" height="450" alt="setupx-gif" src="https://github.com/user-attachments/assets/3084f2c0-01ec-41f7-a0ec-0a965f3eb286" />
+
 ## Features
 
 - **Cross-Platform**: Maps generic package names to native package managers (`brew`, `apt`, `dnf`, `pacman`, `winget`, `scoop`).
