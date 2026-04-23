@@ -1,12 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"setupx/internal/config"
 	"setupx/internal/models"
 	"setupx/internal/pkgmgr"
-	"fmt"
-	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -15,13 +14,13 @@ var explainCmd = &cobra.Command{
 	Use:   "explain [pkg]",
 	Short: "Explain what command would be run for a package",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		pkg := args[0]
-		
+
 		var cfg *models.Config
 		cfg, err := config.LoadConfig("setupx.yaml")
 		if err != nil && !os.IsNotExist(err) {
-			log.Fatalf("Error loading config: %v", err)
+			return fmt.Errorf("Error loading config: %w", err)
 		}
 
 		osName := pkgmgr.DetectOS()
@@ -31,7 +30,7 @@ var explainCmd = &cobra.Command{
 		}
 		mgr, err := pkgmgr.GetManager(osName, pmOverride)
 		if err != nil {
-			log.Fatalf("Error: %v", err)
+			return fmt.Errorf("Error: %w", err)
 		}
 
 		var targetPkg string
@@ -46,11 +45,12 @@ var explainCmd = &cobra.Command{
 		}
 
 		installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
-		
+
 		fmt.Printf("Package: %s\n", pkg)
 		fmt.Printf("Detected OS: %s\n", osName)
 		fmt.Printf("Mapped Name: %s\n", targetPkg)
 		fmt.Printf("Command: %s\n", pkgmgr.FormatCommand(installCmd))
+		return nil
 	},
 }
 

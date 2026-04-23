@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"setupx/internal/config"
@@ -18,7 +17,7 @@ var configURL string
 var applyCmd = &cobra.Command{
 	Use:   "apply",
 	Short: "Install all packages from setupx.yaml",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var cfg *models.Config
 		var err error
 
@@ -29,18 +28,18 @@ var applyCmd = &cobra.Command{
 		}
 
 		if err != nil {
-			log.Fatalf("Error loading config: %v", err)
+			return fmt.Errorf("Error loading config: %w", err)
 		}
 
 		osName := pkgmgr.DetectOS()
 		mgr, err := pkgmgr.GetManager(osName, cfg.PackageManager)
 		if err != nil {
-			log.Fatalf("Error: %v", err)
+			return fmt.Errorf("Error: %w", err)
 		}
 
 		if len(cfg.Packages) == 0 {
 			fmt.Println("No packages to install.")
-			return
+			return nil
 		}
 
 		run := &runner.Runner{DryRun: dryRun}
@@ -90,6 +89,7 @@ var applyCmd = &cobra.Command{
 				}
 			}
 		}
+		return nil
 	},
 }
 

@@ -8,10 +8,11 @@ var dryRun bool
 var Version = "0.1.0"
 
 var rootCmd = &cobra.Command{
-	Use:     "setupx",
-	Version: Version,
-	Short:   "setupx is a cross-platform package manager",
-	Long:    `A simple, fast tool to install packages across macOS, Linux, and Windows.`,
+	Use:          "setupx",
+	Version:      Version,
+	Short:        "setupx is a cross-platform package manager",
+	Long:         `A simple, fast tool to install packages across macOS, Linux, and Windows.`,
+	SilenceUsage: true,
 }
 
 func Execute() error {

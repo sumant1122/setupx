@@ -1,13 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"setupx/internal/config"
 	"setupx/internal/models"
 	"setupx/internal/pkgmgr"
 	"setupx/internal/runner"
-	"fmt"
-	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -16,16 +15,16 @@ var installCmd = &cobra.Command{
 	Use:   "install [pkg]",
 	Short: "Install a specific package",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		pkg := args[0]
-		
+
 		var cfg *models.Config
-		
+
 		// Let's assume setupx.yaml is optional here or we just use it for mapping
 		cfg, err := config.LoadConfig("setupx.yaml")
 		if err != nil {
 			if !os.IsNotExist(err) {
-				log.Fatalf("Error loading config: %v", err)
+				return fmt.Errorf("Error loading config: %w", err)
 			}
 			// If it doesn't exist, we'll just use the name as is
 		}
@@ -37,7 +36,7 @@ var installCmd = &cobra.Command{
 		}
 		mgr, err := pkgmgr.GetManager(osName, pmOverride)
 		if err != nil {
-			log.Fatalf("Error: %v", err)
+			return fmt.Errorf("Error: %w", err)
 		}
 
 		var targetPkg string
@@ -56,12 +55,12 @@ var installCmd = &cobra.Command{
 		// Check if already installed (Idempotency)
 		if !dryRun && run.Check(mgr.IsInstalledCommand(targetPkg)) {
 			fmt.Printf("[Skipped] %s is already installed\n", pkg)
-			return
+			return nil
 		}
 
 		installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
 		if err := run.Run(installCmd); err != nil {
-			log.Fatalf("Error executing install: %v", err)
+			return fmt.Errorf("Error executing install: %w", err)
 		}
 
 		if dryRun {
@@ -69,6 +68,7 @@ var installCmd = &cobra.Command{
 		} else {
 			fmt.Printf("[Success] %s installed\n", targetPkg)
 		}
+		return nil
 	},
 }
 
