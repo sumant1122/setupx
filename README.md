@@ -138,6 +138,10 @@ Build:
 go build -o setupx main.go
 ```
 
+## Recent Updates
+
+- **Architecture**: Decoupled package manager search parsing for better modularity and testability.
+
 ## Roadmap
 
 We're constantly working to make **setupx** the best environment orchestrator. Here’s what’s coming next:

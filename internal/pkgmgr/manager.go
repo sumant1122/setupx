@@ -6,7 +6,13 @@ import (
 	"strings"
 )
 
+type SearchResult struct {
+	Name        string
+	Description string
+}
+
 type PackageManager interface {
+	ParseSearchOutput(out string) []SearchResult
 	InstallCommand(packages []string, versions map[string]string) []string
 	SearchCommand(pkg string) []string
 	ExactSearchCommand(pkg string) []string
@@ -14,6 +20,31 @@ type PackageManager interface {
 }
 
 type AptManager struct{}
+
+func (a AptManager) ParseSearchOutput(out string) []SearchResult {
+	var results []SearchResult
+	lines := strings.Split(out, "\n")
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if line == "" || strings.HasPrefix(line, "Sorting...") || strings.HasPrefix(line, "Full Text Search...") || strings.Contains(line, "WARNING") {
+			continue
+		}
+		parts := strings.SplitN(line, "/", 2)
+		if len(parts) == 2 {
+			name := parts[0]
+			desc := ""
+			if i+1 < len(lines) {
+				desc = strings.TrimSpace(lines[i+1])
+				i++
+			}
+			results = append(results, SearchResult{Name: name, Description: desc})
+			if len(results) >= 20 {
+				break
+			}
+		}
+	}
+	return results
+}
 
 func (a AptManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
@@ -41,6 +72,38 @@ func (a AptManager) IsInstalledCommand(pkg string) []string {
 
 type DnfManager struct{}
 
+func (d DnfManager) ParseSearchOutput(out string) []SearchResult {
+	var results []SearchResult
+	lines := strings.Split(out, "\n")
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if line == "" || strings.HasPrefix(line, "Last metadata expiration check:") {
+			continue
+		}
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			name := strings.TrimSpace(parts[0])
+			nameParts := strings.Split(name, ".")
+			results = append(results, SearchResult{Name: nameParts[0], Description: strings.TrimSpace(parts[1])})
+		} else {
+			parts = strings.SplitN(line, "/", 2)
+			if len(parts) == 2 {
+				name := parts[0]
+				desc := ""
+				if i+1 < len(lines) {
+					desc = strings.TrimSpace(lines[i+1])
+					i++
+				}
+				results = append(results, SearchResult{Name: name, Description: desc})
+			}
+		}
+		if len(results) >= 20 {
+			break
+		}
+	}
+	return results
+}
+
 func (d DnfManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
 	for _, p := range packages {
@@ -66,6 +129,22 @@ func (d DnfManager) IsInstalledCommand(pkg string) []string {
 }
 
 type BrewManager struct{}
+
+func (b BrewManager) ParseSearchOutput(out string) []SearchResult {
+	var results []SearchResult
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "==>") {
+			continue
+		}
+		results = append(results, SearchResult{Name: line, Description: "N/A"})
+		if len(results) >= 20 {
+			break
+		}
+	}
+	return results
+}
 
 func (b BrewManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
@@ -93,6 +172,32 @@ func (b BrewManager) IsInstalledCommand(pkg string) []string {
 
 type WingetManager struct{}
 
+func (w WingetManager) ParseSearchOutput(out string) []SearchResult {
+	var results []SearchResult
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "Name") || strings.HasPrefix(line, "---") || strings.HasPrefix(line, "No package found") {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) >= 2 {
+			id := fields[1]
+			for _, f := range fields {
+				if strings.Count(f, ".") >= 1 && !strings.Contains(f, ":") {
+					id = f
+					break
+				}
+			}
+			results = append(results, SearchResult{Name: id, Description: "Available on Windows"})
+			if len(results) >= 20 {
+				break
+			}
+		}
+	}
+	return results
+}
+
 func (w WingetManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
 	for _, p := range packages {
@@ -119,6 +224,25 @@ func (w WingetManager) IsInstalledCommand(pkg string) []string {
 
 type ScoopManager struct{}
 
+func (s ScoopManager) ParseSearchOutput(out string) []SearchResult {
+	var results []SearchResult
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "Results from") || strings.HasPrefix(line, "---") || strings.HasPrefix(line, "Name") {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) >= 1 {
+			results = append(results, SearchResult{Name: fields[0], Description: "Available in Scoop"})
+			if len(results) >= 20 {
+				break
+			}
+		}
+	}
+	return results
+}
+
 func (s ScoopManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
 	for _, p := range packages {
@@ -144,6 +268,21 @@ func (s ScoopManager) IsInstalledCommand(pkg string) []string {
 }
 
 type PacmanManager struct{}
+
+func (p PacmanManager) ParseSearchOutput(out string) []SearchResult {
+	var results []SearchResult
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			results = append(results, SearchResult{Name: line, Description: "N/A"})
+			if len(results) >= 20 {
+				break
+			}
+		}
+	}
+	return results
+}
 
 func (p PacmanManager) InstallCommand(packages []string, versions map[string]string) []string {
 	var targets []string
