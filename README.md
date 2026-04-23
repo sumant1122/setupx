@@ -140,6 +140,8 @@ go build -o setupx main.go
 
 ## Recent Updates
 
+- **Linting**: Added `setupx lint` to validate the `setupx.yaml` file structure and logic.
+- **Error Handling**: Implemented graceful error returns across commands, replacing hard fatal panics.
 - **Architecture**: Decoupled package manager search parsing for better modularity and testability.
 
 ## Roadmap
