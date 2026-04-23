@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
 	"setupx/internal/config"
 	"setupx/internal/models"
 	"setupx/internal/pkgmgr"
 	"setupx/internal/runner"
-	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -44,7 +46,7 @@ var applyCmd = &cobra.Command{
 		run := &runner.Runner{DryRun: dryRun}
 		for _, p := range cfg.Packages {
 			targetPkg := cfg.GetPackageName(p, string(osName))
-			
+
 			// 1. Check if already installed (Idempotency)
 			if !dryRun && run.Check(mgr.IsInstalledCommand(targetPkg)) {
 				fmt.Printf("[Skipped] %s is already installed\n", p)
@@ -58,13 +60,34 @@ var applyCmd = &cobra.Command{
 			}
 
 			installCmd := mgr.InstallCommand([]string{targetPkg}, versions)
-			
+
 			if err := run.Run(installCmd); err != nil {
 				fmt.Printf("[Warning] Failed to install %s: %v\n", p, err)
 			} else if dryRun {
 				fmt.Printf("[Dry-run] Would install %s\n", p)
+				if detail, ok := cfg.Mappings[p]; ok && len(detail.PostInstall) > 0 {
+					for _, hook := range detail.PostInstall {
+						fmt.Printf("[Dry-run] Would run hook for %s: %s\n", p, hook)
+					}
+				}
 			} else {
 				fmt.Printf("[Success] %s installed\n", p)
+				if detail, ok := cfg.Mappings[p]; ok && len(detail.PostInstall) > 0 {
+					for _, hook := range detail.PostInstall {
+						fmt.Printf("[Hook] Running: %s\n", hook)
+						var hookCmd *exec.Cmd
+						if osName == pkgmgr.Windows {
+							hookCmd = exec.Command("cmd", "/c", hook)
+						} else {
+							hookCmd = exec.Command("sh", "-c", hook)
+						}
+						hookCmd.Stdout = os.Stdout
+						hookCmd.Stderr = os.Stderr
+						if err := hookCmd.Run(); err != nil {
+							fmt.Printf("[Warning] Hook failed for %s: %v\n", p, err)
+						}
+					}
+				}
 			}
 		}
 	},

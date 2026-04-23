@@ -146,7 +146,7 @@ go build -o setupx main.go
 
 We're constantly working to make **setupx** the best environment orchestrator. Here’s what’s coming next:
 
-- [ ] **Post-Install Hooks**: Run custom shell commands after a package is successfully installed.
+- [x] **Post-Install Hooks**: Run custom shell commands after a package is successfully installed.
 - [ ] **Interactive Onboarding**: Automatically search and suggest mappings when a package is missing from your config.
 - [ ] **Configuration Variables**: Use placeholders like `{{HOME}}` or `{{OS}}` in your YAML.
 - [ ] **Self-Update**: A simple `setupx self-update` command to stay current.
